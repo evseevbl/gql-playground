@@ -48,9 +48,10 @@ func (r *queryResolver) GetLastPosts(ctx context.Context, cnt *int) ([]*model.Po
 func (r *subscriptionResolver) PostCreated(ctx context.Context) (<-chan *model.Post, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	r.subscriberCounter++
 
 	events := make(chan *model.Post, 1)
-	r.postReaders = append(r.postReaders, events)
+	r.postReaders[r.subscriberCounter] = events
 	return events, nil
 }
 
