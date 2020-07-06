@@ -5,6 +5,8 @@ package graph
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/evseevbl/posts/internal/app/posts/graph/generated"
@@ -12,7 +14,6 @@ import (
 )
 
 func (r *mutationResolver) CreatePost(ctx context.Context, title string, description string) (*model.Post, error) {
-
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -24,15 +25,35 @@ func (r *mutationResolver) CreatePost(ctx context.Context, title string, descrip
 	}
 	cnt := int(r.idCounter)
 	post.ID = &cnt
-	r.postStorage[r.idCounter] = post
+	r.postStorage = append(r.postStorage, post)
 	return post, nil
 }
 
-// Mutation returns generated.MutationResolver implementation.
-func (r *Resolver) Mutation() generated.MutationResolver {
-	return &mutationResolver{Resolver: r}
+func (r *queryResolver) GetLastPosts(ctx context.Context, cnt *int) ([]*model.Post, error) {
+	if *cnt <= 0 {
+		return nil, errors.New("bad arg cnt")
+	}
+	if len(r.postStorage) <= *cnt {
+		return r.postStorage, nil
+	}
+	sz := len(r.postStorage)
+	return r.postStorage[sz-*cnt : sz-1], nil
 }
 
-type mutationResolver struct {
-	*Resolver
+func (r *subscriptionResolver) PostCreated(ctx context.Context) (<-chan *model.Post, error) {
+	fmt.Printf("postcreated handle")
+	return r.postChan, nil
 }
+
+// Mutation returns generated.MutationResolver implementation.
+func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
+
+// Query returns generated.QueryResolver implementation.
+func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
+
+// Subscription returns generated.SubscriptionResolver implementation.
+func (r *Resolver) Subscription() generated.SubscriptionResolver { return &subscriptionResolver{r} }
+
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }
+type subscriptionResolver struct{ *Resolver }

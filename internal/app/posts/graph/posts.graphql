@@ -12,6 +12,13 @@ type Post {
     createdAt: Time!
 }
 
+type Query {
+    getLastPosts(cnt: Int): [Post!]!
+}
+
+type Subscription {
+    postCreated: Post!
+}
 
 type Mutation {
     createPost(title: String!, description: String!): Post!

@@ -10,6 +10,7 @@ import (
 
 	"github.com/evseevbl/posts/internal/app/posts/graph"
 	"github.com/evseevbl/posts/internal/app/posts/graph/generated"
+	"github.com/evseevbl/posts/internal/pkg/ws"
 )
 
 const defaultPort = "8080"
@@ -27,6 +28,7 @@ func main() {
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
+	http.Handle("/subscribe", &ws.Handler{})
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
