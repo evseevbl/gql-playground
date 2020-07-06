@@ -8,10 +8,6 @@ import (
 	"github.com/evseevbl/posts/internal/app/posts/graph/model"
 )
 
-// This file will not be regenerated automatically.
-//
-// It serves as dependency injection for your app, add any dependencies you require here.
-
 func NewResolver() *Resolver {
 	return &Resolver{
 		postStorage: make([]*model.Post, 0),

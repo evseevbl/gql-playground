@@ -6,7 +6,6 @@ package graph
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/evseevbl/posts/internal/app/posts/graph/generated"
@@ -41,7 +40,6 @@ func (r *queryResolver) GetLastPosts(ctx context.Context, cnt *int) ([]*model.Po
 }
 
 func (r *subscriptionResolver) PostCreated(ctx context.Context) (<-chan *model.Post, error) {
-	fmt.Printf("postcreated handle")
 	return r.postChan, nil
 }
 
