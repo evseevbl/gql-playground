@@ -16,15 +16,21 @@ func (r *mutationResolver) CreatePost(ctx context.Context, title string, descrip
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	r.idCounter++
 	post := &model.Post{
 		Title:       &title,
 		Description: &description,
 		CreatedAt:   time.Now(),
 	}
+
 	cnt := int(r.idCounter)
 	post.ID = &cnt
 	r.postStorage = append(r.postStorage, post)
+	r.idCounter++
+
+	post.ID = &cnt
+	for _, reader := range r.postReaders {
+		reader <- post
+	}
 	return post, nil
 }
 
@@ -45,9 +51,6 @@ func (r *subscriptionResolver) PostCreated(ctx context.Context) (<-chan *model.P
 
 	events := make(chan *model.Post, 1)
 	r.postReaders = append(r.postReaders, events)
-	go func() {
-		<-ctx.Done()
-	}()
 	return events, nil
 }
 

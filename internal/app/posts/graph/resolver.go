@@ -1,9 +1,7 @@
 package graph
 
 import (
-	"context"
 	"sync"
-	"time"
 
 	"github.com/evseevbl/posts/internal/app/posts/graph/model"
 )
@@ -24,22 +22,3 @@ type Resolver struct {
 	postReaders []chan *model.Post
 }
 
-func (r *Resolver) createPost(ctx context.Context, req *model.CreatePostReq) (*model.Post, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	post := &model.Post{
-		Title:       req.Title,
-		Description: req.Description,
-		CreatedAt:   time.Now(),
-	}
-	cnt := int(r.idCounter)
-	post.ID = &cnt
-	r.postStorage = append(r.postStorage, post)
-	r.idCounter++
-	// r.postChan <- post
-	for _, ch := range r.postReaders {
-		ch <- post
-	}
-	return post, nil
-}

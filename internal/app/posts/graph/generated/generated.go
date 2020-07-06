@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"strconv"
 	"sync"
@@ -662,11 +661,9 @@ func (ec *executionContext) _Subscription_postCreated(ctx context.Context, field
 	}
 	return func() graphql.Marshaler {
 		res, ok := <-resTmp.(<-chan *model.Post)
-		fmt.Printf("DEBUG writing stuff")
 		if !ok {
 			return nil
 		}
-		fmt.Printf("DEBUG success")
 		return graphql.WriterFunc(func(w io.Writer) {
 			w.Write([]byte{'{'})
 			graphql.MarshalString(field.Alias).MarshalGQL(w)
