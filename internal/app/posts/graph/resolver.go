@@ -21,6 +21,7 @@ type Resolver struct {
 	idCounter   int64
 	postStorage []*model.Post
 	postChan    chan *model.Post
+	postReaders []chan *model.Post
 }
 
 func (r *Resolver) createPost(ctx context.Context, req *model.CreatePostReq) (*model.Post, error) {
@@ -36,6 +37,9 @@ func (r *Resolver) createPost(ctx context.Context, req *model.CreatePostReq) (*m
 	post.ID = &cnt
 	r.postStorage = append(r.postStorage, post)
 	r.idCounter++
-	r.postChan <- post
+	// r.postChan <- post
+	for _, ch := range r.postReaders {
+		ch <- post
+	}
 	return post, nil
 }
