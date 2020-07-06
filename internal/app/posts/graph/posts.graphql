@@ -1,0 +1,19 @@
+scalar Time
+
+input CreatePostReq {
+    title: String
+    description: String
+}
+
+type Post {
+    id: Int
+    title: String
+    description: String
+    createdAt: Time!
+}
+
+
+type Mutation {
+    createPost(title: String!, description: String!): Post!
+}
+
